@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  :root {
+    --bg: #0D1117;
+    --card: #151B23;
+    --card-border: #252C36;
+    --inset: #1C222B;
+    --inset-border: #2B333E;
+    --divider: #21262D;
+    --text: #F0F6FC;
+    --muted: #8B949E;
+    --subtext: #C9D1D9;
+    --blue: #58A6FF;
+    --amber: #F2994A;
+    --amber-badge: #D9822B;
+    --green: #3FB950;
+    --red: #F85149;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    padding: 2px 0 18px;
+  }
+
+  .shell {
+    max-width: 1220px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .seg-group {
+    display: inline-flex;
+    align-items: center;
+    background: #0D1117;
+    border: 1px solid var(--card-border);
+    border-radius: 9px;
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .seg-btn {
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 11px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    font-family: inherit;
+  }
+
+  .seg-btn:hover { color: var(--text); }
+  .seg-btn.active { background: #28303D; color: var(--text); font-weight: 600; }
+
+  .row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .row-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.52fr) minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 780px) {
+    .row-3, .row-split { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .card-label { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+  .card-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .card-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* Card 1: Observed Now */
+  .obs-hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 10px 0 18px;
+  }
+
+  .giant-temp {
+    font-size: 52px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .fc-said-block { display: flex; flex-direction: column; gap: 2px; }
+  .fc-said-label { font-size: 11.5px; color: var(--muted); }
+  .fc-said-val { font-size: 17px; font-weight: 700; color: var(--amber); line-height: 1.15; }
+  .fc-said-err { font-size: 12px; color: var(--muted); }
+
+  .mini-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: auto;
+  }
+
+  .mini-box {
+    background: var(--inset);
+    border: 1px solid var(--inset-border);
+    border-radius: 8px;
+    padding: 9px 11px;
+  }
+
+  .mini-box-label { font-size: 11px; color: var(--muted); }
+  .mini-box-val { font-size: 15.5px; font-weight: 700; color: var(--text); margin-top: 3px; }
+
+  /* Card 2: Rain Beacon */
+  .badge-pill {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    line-height: 1.25;
+  }
+
+  .badge-amber { background: var(--amber-badge); color: #11161D; }
+  .badge-green { background: #238636; color: #FFFFFF; }
+  .badge-red   { background: #DA3633; color: #FFFFFF; }
+
+  .beacon-mid {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 12px 0 16px;
+  }
+
+  .ring-wrap { position: relative; width: 84px; height: 84px; flex-shrink: 0; }
+  .ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ring-pct { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.05; }
+  .ring-sub { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+  .beacon-text-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .beacon-text-desc { font-size: 12.5px; color: var(--muted); line-height: 1.4; margin-top: 4px; }
+
+  .hw-status-box {
+    background: var(--inset);
+    border: 1px solid var(--inset-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+  }
+
+  .led-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+  .led-amber { background: var(--amber); box-shadow: 0 0 10px rgba(242, 153, 74, 0.75); }
+  .led-green { background: var(--green); box-shadow: 0 0 10px rgba(63, 185, 80, 0.75); }
+  .led-red   { background: var(--red);   box-shadow: 0 0 10px rgba(248, 81, 73, 0.85); }
+  .hw-title { font-size: 12px; font-weight: 600; color: var(--text); }
+  .hw-sub { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+
+  /* Card 3: Data Collection */
+  .day-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 10px;
+  }
+
+  .day-big { font-size: 24px; font-weight: 700; color: var(--text); }
+  .day-of { font-size: 13.5px; color: var(--muted); font-weight: 400; margin-left: 3px; }
+  .logged-sub { font-size: 12px; color: var(--muted); }
+
+  .progress-track {
+    width: 100%;
+    height: 6px;
+    background: #21262D;
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 10px 0 14px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--blue);
+    border-radius: 999px;
+    transition: width 0.25s ease;
+  }
+
+  .kv-list { display: flex; flex-direction: column; margin-top: auto; }
+  .kv-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-top: 1px solid var(--divider);
+    font-size: 12.5px;
+  }
+
+  .kv-k { color: var(--muted); }
+  .kv-v { color: var(--text); font-weight: 600; }
+
+  /* Main Chart Card */
+  .chart-legend {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 12px 0 6px;
+    font-size: 12px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+
+  .leg-item { display: inline-flex; align-items: center; gap: 7px; }
+  .leg-line-obs { width: 15px; height: 2px; background: var(--blue); display: inline-block; }
+  .leg-line-fc { width: 15px; height: 0; border-top: 2px dashed var(--amber); display: inline-block; }
+  .leg-box-err {
+    width: 11px;
+    height: 11px;
+    background: rgba(242, 153, 74, 0.24);
+    border: 1px solid rgba(242, 153, 74, 0.45);
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  .chart-wrap { position: relative; width: 100%; }
+  .chart-svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+  .chart-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(13, 17, 23, 0.96);
+    border: 1px solid #30363D;
+    border-radius: 8px;
+    padding: 8px 11px;
+    font-size: 11.5px;
+    color: var(--text);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    display: none;
+    z-index: 20;
+    min-width: 168px;
+    line-height: 1.5;
+  }
+
+  /* Tables & Accuracy Callout */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 12.5px;
+  }
+
+  .data-table th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--muted);
+    padding: 6px 6px 8px 0;
+    border-bottom: 1px solid var(--divider);
+    font-size: 11.5px;
+  }
+
+  .data-table td {
+    padding: 10px 6px 10px 0;
+    border-bottom: 1px solid var(--divider);
+    color: var(--subtext);
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+  .td-bold  { color: var(--text) !important; font-weight: 600; }
+  .td-amber { color: var(--amber) !important; font-weight: 600; }
+  .td-muted { color: var(--muted) !important; }
+
+  .callout-bar {
+    background: var(--inset);
+    border: 1px solid var(--inset-border);
+    border-radius: 8px;
+    padding: 11px 14px;
+    margin-top: 12px;
+    font-size: 12.5px;
+    color: var(--subtext);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .callout-pct { font-size: 18px; font-weight: 700; color: var(--amber); line-height: 1; }
+
+  /* Error by Horizon */
+  .horizon-list { display: flex; flex-direction: column; gap: 15px; margin-top: 18px; }
+  .horizon-row {
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+  }
+
+  .horizon-lbl { color: var(--muted); }
+  .horizon-track { height: 10px; background: #21262D; border-radius: 999px; overflow: hidden; }
+  .horizon-fill { height: 100%; background: var(--blue); border-radius: 999px; transition: width 0.25s ease; }
+  .horizon-val { text-align: right; color: var(--text); font-weight: 600; }
+
+  /* Tomorrow Card */
+  .tom-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0 14px;
+  }
+
+  .tom-date { font-size: 12.5px; color: var(--muted); margin-bottom: 4px; }
+  .tom-temps { display: flex; align-items: baseline; gap: 4px; }
+  .tom-hi { font-size: 32px; font-weight: 700; color: var(--text); line-height: 1; }
+  .tom-lo { font-size: 20px; color: var(--muted); font-weight: 400; }
+  .tom-note { font-size: 11.5px; color: var(--muted); margin-top: 12px; }
+
+  .footer-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 11.5px;
+    color: #6E7681;
+    padding: 4px 2px 0;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <!-- ROW 1: THREE SUMMARY CARDS -->
+  <section class="row-3">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-label" id="obs-date-label">Observed now</div>
+        <div id="obs-weather-icon"></div>
+      </div>
+
+      <div class="obs-hero">
+        <div class="giant-temp" id="now-obs-temp">--°</div>
+        <div class="fc-said-block">
+          <div class="fc-said-label">Forecast said</div>
+          <div class="fc-said-val" id="now-fc-temp">--°</div>
+          <div class="fc-said-err" id="now-err-temp">Error --°</div>
+        </div>
+      </div>
+
+      <div class="mini-metrics">
+        <div class="mini-box">
+          <div class="mini-box-label">Humidity</div>
+          <div class="mini-box-val" id="now-humidity">--%</div>
+        </div>
+        <div class="mini-box">
+          <div class="mini-box-label">Rain, 1 h</div>
+          <div class="mini-box-val" id="now-rain">-- mm</div>
+        </div>
+        <div class="mini-box">
+          <div class="mini-box-label">Wind</div>
+          <div class="mini-box-val" id="now-wind">-- km/h</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-label">Rain beacon</div>
+        <span class="badge-pill badge-amber" id="beacon-badge">Watch</span>
+      </div>
+
+      <div class="beacon-mid">
+        <div class="ring-wrap">
+          <svg width="84" height="84" viewBox="0 0 84 84">
+            <circle cx="42" cy="42" r="34" fill="none" stroke="#232933" stroke-width="7"/>
+            <circle id="beacon-ring-arc" cx="42" cy="42" r="34" fill="none" stroke="#F2994A"
+                    stroke-width="7" stroke-linecap="round"
+                    stroke-dasharray="213.6" stroke-dashoffset="213.6"
+                    transform="rotate(-90 42 42)"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-pct" id="beacon-pct">0%</div>
+            <div class="ring-sub">chance</div>
+          </div>
+        </div>
+        <div>
+          <div class="beacon-text-title" id="beacon-title">Rain likely soon</div>
+          <div class="beacon-text-desc" id="beacon-desc">Checking forecast...</div>
+        </div>
+      </div>
+
+      <div class="hw-status-box">
+        <span class="led-dot led-amber" id="beacon-led-dot"></span>
+        <div>
+          <div class="hw-title">Standalone device online</div>
+          <div class="hw-sub" id="beacon-led-label">Amber LED: rain expected within 2 hours</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-label">Data collection</div>
+      </div>
+
+      <div class="day-row">
+        <div>
+          <span class="day-big" id="col-day-label">Day 3</span>
+          <span class="day-of" id="col-day-of">of 3</span>
+        </div>
+        <div class="logged-sub" id="col-hours-logged">72 / 72 h logged</div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="col-progress-fill" style="width: 100%;"></div>
+      </div>
+
+      <div class="kv-list">
+        <div class="kv-row">
+          <span class="kv-k">Poll interval</span>
+          <span class="kv-v" id="col-poll-interval">15 min</span>
+        </div>
+        <div class="kv-row">
+          <span class="kv-k">Missed polls</span>
+          <span class="kv-v" id="col-missed-polls">0</span>
+        </div>
+        <div class="kv-row">
+          <span class="kv-k">Storage</span>
+          <span class="kv-v" id="col-storage">SQLite</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROW 2: FORECAST VS OBSERVED CHART -->
+  <section class="card">
+    <div class="card-head" style="align-items: center; flex-wrap: wrap;">
+      <div>
+        <div class="card-title">Forecast vs observed</div>
+        <div class="card-subtitle" id="chart-subtitle">Temperature, hourly</div>
+      </div>
+      <div class="seg-group" id="param-switcher">
+        <button class="seg-btn active" data-param="temperature">Temperature</button>
+        <button class="seg-btn" data-param="humidity">Humidity</button>
+        <button class="seg-btn" data-param="wind_speed">Wind speed</button>
+      </div>
+    </div>
+
+    <div class="chart-legend">
+      <span class="leg-item"><span class="leg-line-obs"></span> Observed</span>
+      <span class="leg-item"><span class="leg-line-fc"></span> Forecast</span>
+      <span class="leg-item"><span class="leg-box-err"></span> Forecast error</span>
+    </div>
+
+    <div class="chart-wrap">
+      <svg id="main-chart-svg" class="chart-svg" viewBox="0 0 1120 348"></svg>
+      <div id="chart-tooltip" class="chart-tooltip"></div>
+    </div>
+  </section>
+
+  <!-- ROW 3: FORECAST ACCURACY & ERROR BY HORIZON -->
+  <section class="row-split">
+    <div class="card">
+      <div class="card-head" style="align-items: baseline;">
+        <div class="card-title">Forecast accuracy</div>
+        <div class="card-label">Error = observed &minus; forecast</div>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>MAE</th>
+            <th>RMSE</th>
+            <th>Bias</th>
+          </tr>
+        </thead>
+        <tbody id="accuracy-tbody"></tbody>
+      </table>
+
+      <div class="callout-bar" id="rain-callout"></div>
+    </div>
+
+    <div class="card">
+      <div>
+        <div class="card-title">Error by horizon</div>
+        <div class="card-subtitle" id="horizon-subtitle">Temperature MAE (°C): the further out, the worse</div>
+      </div>
+      <div class="horizon-list" id="horizon-list"></div>
+    </div>
+  </section>
+
+  <!-- ROW 4: LATEST READINGS & TOMORROW -->
+  <section class="row-split">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Latest readings</div>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Observed</th>
+            <th>Forecast</th>
+            <th>Error</th>
+            <th>Humidity</th>
+            <th>Rain</th>
+          </tr>
+        </thead>
+        <tbody id="latest-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Tomorrow</div>
+      </div>
+
+      <div class="tom-hero">
+        <div>
+          <div class="tom-date" id="tom-date">Tomorrow</div>
+          <div class="tom-temps">
+            <span class="tom-hi" id="tom-hi">--°</span>
+            <span class="tom-lo" id="tom-lo">/ --°</span>
+          </div>
+        </div>
+        <div id="tom-icon"></div>
+      </div>
+
+      <div class="kv-list">
+        <div class="kv-row">
+          <span class="kv-k">Rain chance</span>
+          <span class="kv-v" id="tom-rain-chance">--%</span>
+        </div>
+        <div class="kv-row">
+          <span class="kv-k">Expected rain</span>
+          <span class="kv-v" id="tom-expected-rain">-- mm</span>
+        </div>
+        <div class="kv-row">
+          <span class="kv-k">Peak window</span>
+          <span class="kv-v" id="tom-peak-window">-- to --</span>
+        </div>
+      </div>
+
+      <div class="tom-note">Scored against observed values once the day is complete</div>
+    </div>
+  </section>
+
+  <footer class="footer-bar">
+    <span id="footer-source">Source: Open-Meteo API &middot; Seri Iskandar, Perak</span>
+    <span>Refreshes every 15 min</span>
+  </footer>
+</div>
+
+<script>
+const DATA = __PAYLOAD_JSON__;
+const ACTIVE_WINDOW = "__INITIAL_WIN__";
+
+const PARAM_CONFIG = {
+  temperature: { label: "Temperature", unit: "°C", shortUnit: "°", obsKey: "obs_temp", fcKey: "fc_temp", decimals: 1 },
+  humidity:    { label: "Humidity",    unit: "%",  shortUnit: "%", obsKey: "obs_humidity", fcKey: "fc_humidity", decimals: 0 },
+  wind_speed:  { label: "Wind speed",  unit: "km/h", shortUnit: " km/h", obsKey: "obs_wind", fcKey: "fc_wind", decimals: 1 }
+};
+
+let activeParam = "temperature";
+
+function fmtSigned(val, decimals, unitSuffix = "") {
+  const num = Number(val);
+  if (Math.abs(num) < Math.pow(10, -decimals) / 2) {
+    return (0).toFixed(decimals) + unitSuffix;
+  }
+  return `${num < 0 ? "−" : "+"}${Math.abs(num).toFixed(decimals)}${unitSuffix}`;
+}
+
+function renderWeatherIcon(wmoCode, isRainy) {
+  if (isRainy || wmoCode >= 51) {
+    return `
+      <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+        <path d="M10 21.5h15.5a4.8 4.8 0 0 0 .5-9.57 6.5 6.5 0 0 0-12.5-1.6A5.2 5.2 0 0 0 10 21.5Z" stroke="#C9D1D9" stroke-width="1.8" fill="#1F2937"/>
+        <line x1="12.5" y1="25" x2="11" y2="29" stroke="#8B949E" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="18" y1="25" x2="16.5" y2="29" stroke="#8B949E" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="23.5" y1="25" x2="22" y2="29" stroke="#8B949E" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>`;
+  }
+  return `
+    <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+      <circle cx="22.5" cy="11.5" r="4.5" stroke="#F2994A" stroke-width="1.8"/>
+      <g stroke="#F2994A" stroke-width="1.6" stroke-linecap="round">
+        <line x1="22.5" y1="4.2" x2="22.5" y2="5.6"/>
+        <line x1="28" y1="6.4" x2="27" y2="7.4"/>
+        <line x1="30.2" y1="11.5" x2="28.8" y2="11.5"/>
+        <line x1="17" y1="6.4" x2="18" y2="7.4"/>
+      </g>
+      <path d="M8.5 24.5h14.5a4.4 4.4 0 0 0 .5-8.77 5.9 5.9 0 0 0-11.4-1.45A4.8 4.8 0 0 0 8.5 24.5Z" stroke="#C9D1D9" stroke-width="1.8" fill="#161B22"/>
+    </svg>`;
+}
+
+function renderStaticCards() {
+  document.getElementById("obs-date-label").textContent = `Observed now · ${DATA.observed_date_label}`;
+  document.getElementById("obs-weather-icon").innerHTML = renderWeatherIcon(DATA.now_wmo_code, DATA.now_rain >= 0.1);
+  document.getElementById("now-obs-temp").textContent = `${DATA.now_obs_temp.toFixed(1)}°`;
+  document.getElementById("now-fc-temp").textContent = `${DATA.now_fc_temp.toFixed(1)}°`;
+  document.getElementById("now-err-temp").textContent = `Error ${fmtSigned(DATA.now_err_temp, 1, "°")}`;
+  document.getElementById("now-humidity").textContent = `${DATA.now_humidity}%`;
+  document.getElementById("now-rain").textContent = `${DATA.now_rain.toFixed(1)} mm`;
+  document.getElementById("now-wind").textContent = `${DATA.now_wind} km/h`;
+
+  const rb = DATA.rain_beacon;
+  const badgeEl = document.getElementById("beacon-badge");
+  badgeEl.textContent = rb.badge;
+  badgeEl.className = "badge-pill " + (
+    rb.color_key === "red" ? "badge-red" : rb.color_key === "green" ? "badge-green" : "badge-amber"
+  );
+
+  const ringColor = rb.color_key === "red" ? "#F85149" : rb.color_key === "green" ? "#3FB950" : "#F2994A";
+  const circ = 2 * Math.PI * 34;
+  const arcEl = document.getElementById("beacon-ring-arc");
+  arcEl.setAttribute("stroke", ringColor);
+  arcEl.setAttribute("stroke-dasharray", circ.toFixed(2));
+  arcEl.setAttribute("stroke-dashoffset", (circ * (1 - rb.chance_pct / 100)).toFixed(2));
+
+  document.getElementById("beacon-pct").textContent = `${rb.chance_pct}%`;
+  document.getElementById("beacon-title").textContent = rb.title;
+  document.getElementById("beacon-desc").textContent = rb.subtitle;
+
+  document.getElementById("beacon-led-dot").className = "led-dot " + (
+    rb.color_key === "red" ? "led-red" : rb.color_key === "green" ? "led-green" : "led-amber"
+  );
+  document.getElementById("beacon-led-label").textContent = rb.led_label;
+
+  document.getElementById("col-poll-interval").textContent = DATA.collection.poll_interval;
+  document.getElementById("col-missed-polls").textContent = DATA.collection.missed_polls;
+  document.getElementById("col-storage").textContent = DATA.collection.storage;
+
+  document.getElementById("latest-tbody").innerHTML = DATA.latest_readings.map(r => `
+    <tr>
+      <td class="td-muted">${r.time}</td>
+      <td class="td-bold">${r.obs_temp.toFixed(1)}°</td>
+      <td class="td-amber">${r.fc_temp.toFixed(1)}°</td>
+      <td>${fmtSigned(r.err_temp, 1, "°")}</td>
+      <td>${r.humidity}%</td>
+      <td>${r.rain.toFixed(1)} mm</td>
+    </tr>
+  `).join("");
+
+  const tom = DATA.tomorrow;
+  document.getElementById("tom-date").textContent = tom.date_label;
+  document.getElementById("tom-hi").textContent = `${tom.high}°`;
+  document.getElementById("tom-lo").textContent = `/ ${tom.low}°`;
+  document.getElementById("tom-icon").innerHTML = renderWeatherIcon(tom.rain_chance >= 50 ? 61 : 2, tom.rain_chance >= 50);
+  document.getElementById("tom-rain-chance").textContent = `${tom.rain_chance}%`;
+  document.getElementById("tom-expected-rain").textContent = `${tom.expected_rain.toFixed(1)} mm`;
+  document.getElementById("tom-peak-window").textContent = tom.peak_window;
+  document.getElementById("footer-source").textContent =
+    `Source: Open-Meteo API · Seri Iskandar, Perak (${DATA.coords_label})`;
+}
+
+function getSlicedTimeline() {
+  const obsIndices = [];
+  DATA.timeline.forEach((pt, idx) => { if (pt.is_obs) obsIndices.push(idx); });
+  const lastObsIdx = obsIndices.length ? obsIndices[obsIndices.length - 1] : 0;
+
+  let obsCount = obsIndices.length;
+  if (ACTIVE_WINDOW === "3d") obsCount = Math.min(72, obsIndices.length);
+  else if (ACTIVE_WINDOW === "24h") obsCount = Math.min(24, obsIndices.length);
+
+  const startIdx = Math.max(0, lastObsIdx - obsCount + 1);
+  return { sliced: DATA.timeline.slice(startIdx), obsCount };
+}
+
+function renderDataCollectionCard(obsCount) {
+  let targetHours = 72;
+  let dayCur = Math.max(1, Math.ceil(obsCount / 24));
+  let dayTarget = 3;
+
+  if (ACTIVE_WINDOW === "24h") {
+    targetHours = 24; dayCur = 1; dayTarget = 1;
+  } else if (ACTIVE_WINDOW === "all") {
+    targetHours = Math.max(72, obsCount);
+    dayTarget = Math.max(3, Math.ceil(obsCount / 24));
+  }
+
+  const pct = Math.min(100, Math.round((obsCount / targetHours) * 100));
+  document.getElementById("col-day-label").textContent = `Day ${dayCur}`;
+  document.getElementById("col-day-of").textContent = `of ${dayTarget}`;
+  document.getElementById("col-hours-logged").textContent = `${obsCount} / ${targetHours} h logged`;
+  document.getElementById("col-progress-fill").style.width = `${pct}%`;
+}
+
+function renderAccuracyAndHorizons() {
+  const winStats = DATA.stats_by_window[ACTIVE_WINDOW] || DATA.stats_by_window["3d"];
+  document.getElementById("accuracy-tbody").innerHTML = winStats.accuracy_rows.map(row => `
+    <tr>
+      <td class="td-bold">${row.name}</td>
+      <td>${row.mae.toFixed(1)}${row.unit}</td>
+      <td>${row.rmse.toFixed(1)}${row.unit}</td>
+      <td>${fmtSigned(row.bias, 1, row.unit)}</td>
+    </tr>
+  `).join("");
+
+  document.getElementById("rain-callout").innerHTML = `
+    <span class="callout-pct">${winStats.rain_hit_rate}%</span>
+    <span>of rain events were forecast correctly (hit rate), with <strong>${winStats.rain_false_alarm}%</strong> false alarms</span>
+  `;
+
+  const pMeta = PARAM_CONFIG[activeParam];
+  document.getElementById("horizon-subtitle").textContent =
+    `${pMeta.label} MAE (${pMeta.unit}): the further out, the worse`;
+
+  const bars = (winStats.horizons && winStats.horizons[activeParam]) || [];
+  const maxMae = Math.max(0.01, ...bars.map(b => b.mae));
+
+  document.getElementById("horizon-list").innerHTML = bars.map(b => {
+    const wPct = Math.max(8, Math.round((b.mae / maxMae) * 86));
+    return `
+      <div class="horizon-row">
+        <div class="horizon-lbl">${b.horizon}</div>
+        <div class="horizon-track"><div class="horizon-fill" style="width: ${wPct}%;"></div></div>
+        <div class="horizon-val">${b.mae.toFixed(1)}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderMainChart(sliced) {
+  const svg = document.getElementById("main-chart-svg");
+  const tooltip = document.getElementById("chart-tooltip");
+  const cfg = PARAM_CONFIG[activeParam];
+  if (!sliced.length) return;
+
+  const firstDay = sliced[0].day_label;
+  const lastDay = sliced[sliced.length - 1].label.split(" · ")[0];
+  document.getElementById("chart-subtitle").textContent = `${cfg.label}, ${firstDay} to ${lastDay}, hourly`;
+
+  const W = 1120, padL = 56, padR = 18, plotW = W - padL - padR;
+  const topY = 26, topH = 188, rainObsBase = 276, rainFcBase = 310, rainMaxH = 22;
+
+  const allVals = [];
+  for (const d of sliced) {
+    if (d[cfg.obsKey] != null) allVals.push(d[cfg.obsKey]);
+    if (d[cfg.fcKey] != null) allVals.push(d[cfg.fcKey]);
+  }
+  let minV = Math.min(...allVals);
+  let maxV = Math.max(...allVals);
+  if (activeParam === "humidity") {
+    minV = Math.max(20, Math.floor((minV - 5) / 5) * 5);
+    maxV = 100;
+  } else if (activeParam === "wind_speed") {
+    minV = 0;
+    maxV = Math.max(8, Math.ceil((maxV + 2) / 2) * 2);
+  } else {
+    minV = Math.floor((minV - 1.2) * 10) / 10;
+    maxV = Math.ceil((maxV + 1.2) * 10) / 10;
+  }
+  const spanV = Math.max(1e-3, maxV - minV);
+
+  const xAt = (i) => padL + (i / Math.max(1, sliced.length - 1)) * plotW;
+  const yAt = (v) => topY + (1 - (v - minV) / spanV) * topH;
+  const maxRain = Math.max(1.0, ...sliced.flatMap(d => [d.obs_rain || 0, d.fc_rain || 0]));
+
+  let html = "";
+  for (let t = 0; t < 5; t++) {
+    const frac = t / 4;
+    const val = maxV - frac * spanV;
+    const y = topY + frac * topH;
+    const lbl = activeParam === "humidity" ? `${Math.round(val)} %` : `${val.toFixed(1)} ${cfg.unit}`;
+    html += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="#21262D" stroke-dasharray="3 4" stroke-width="1"/>`;
+    html += `<text x="${padL - 10}" y="${(y + 3.5).toFixed(1)}" text-anchor="end" fill="#6E7681" font-size="10.5">${lbl}</text>`;
+  }
+
+  let nowIdx = 0;
+  for (let i = 0; i < sliced.length; i++) { if (sliced[i].is_obs) nowIdx = i; }
+
+  const upperPts = [], lowerPts = [];
+  for (let i = 0; i <= nowIdx; i++) {
+    const ov = sliced[i][cfg.obsKey], fv = sliced[i][cfg.fcKey];
+    if (ov != null && fv != null) {
+      const x = xAt(i).toFixed(1);
+      upperPts.push(`${x},${yAt(ov).toFixed(1)}`);
+      lowerPts.unshift(`${x},${yAt(fv).toFixed(1)}`);
+    }
+  }
+  if (upperPts.length > 1) {
+    html += `<polygon points="${upperPts.concat(lowerPts).join(" ")}" fill="rgba(242, 153, 74, 0.16)" />`;
+  }
+
+  const fcPts = [], obsPts = [];
+  for (let i = 0; i < sliced.length; i++) {
+    if (sliced[i][cfg.fcKey] != null) fcPts.push(`${xAt(i).toFixed(1)},${yAt(sliced[i][cfg.fcKey]).toFixed(1)}`);
+    if (i <= nowIdx && sliced[i][cfg.obsKey] != null) obsPts.push(`${xAt(i).toFixed(1)},${yAt(sliced[i][cfg.obsKey]).toFixed(1)}`);
+  }
+  if (fcPts.length > 1) html += `<polyline fill="none" stroke="#F2994A" stroke-width="1.9" stroke-dasharray="5 4" points="${fcPts.join(" ")}" />`;
+  if (obsPts.length > 1) html += `<polyline fill="none" stroke="#58A6FF" stroke-width="2.2" points="${obsPts.join(" ")}" />`;
+
+  const nowX = xAt(nowIdx);
+  html += `<line x1="${nowX.toFixed(1)}" y1="${topY}" x2="${nowX.toFixed(1)}" y2="${rainFcBase}" stroke="#484F58" stroke-dasharray="3 3" stroke-width="1.2"/>`;
+  html += `<rect x="${(nowX - 18).toFixed(1)}" y="${topY - 19}" width="36" height="17" rx="4" fill="#F0F6FC"/>`;
+  html += `<text x="${nowX.toFixed(1)}" y="${topY - 7}" text-anchor="middle" fill="#0D1117" font-size="10.5" font-weight="700">Now</text>`;
+
+  html += `<text x="${padL - 10}" y="242" text-anchor="end" fill="#6E7681" font-size="10">Rain</text>`;
+  html += `<text x="${padL - 10}" y="253" text-anchor="end" fill="#6E7681" font-size="10">mm/h</text>`;
+  html += `<text x="${padL - 10}" y="${rainObsBase + 2}" text-anchor="end" fill="#6E7681" font-size="9.5">Obs.</text>`;
+  html += `<text x="${padL - 10}" y="${rainFcBase + 2}" text-anchor="end" fill="#6E7681" font-size="9.5">Fcst.</text>`;
+  html += `<line x1="${padL}" y1="${rainObsBase}" x2="${W - padR}" y2="${rainObsBase}" stroke="#21262D" stroke-width="1"/>`;
+  html += `<line x1="${padL}" y1="${rainFcBase}" x2="${W - padR}" y2="${rainFcBase}" stroke="#21262D" stroke-width="1"/>`;
+
+  const barW = Math.max(2.5, Math.min(7.5, (plotW / Math.max(1, sliced.length)) * 0.68));
+  for (let i = 0; i < sliced.length; i++) {
+    const d = sliced[i], cx = xAt(i);
+    if (d.is_obs && d.obs_rain > 0) {
+      const h = Math.max(2.5, (d.obs_rain / maxRain) * rainMaxH);
+      html += `<rect x="${(cx - barW / 2).toFixed(1)}" y="${(rainObsBase - h).toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="1" fill="#58A6FF"/>`;
+    }
+    if (d.fc_rain > 0) {
+      const h2 = Math.max(2.5, (d.fc_rain / maxRain) * rainMaxH);
+      html += `<rect x="${(cx - barW / 2).toFixed(1)}" y="${(rainFcBase - h2).toFixed(1)}" width="${barW.toFixed(1)}" height="${h2.toFixed(1)}" rx="1" fill="#F2994A"/>`;
+    }
+  }
+
+  const shownDays = new Set();
+  let lastTickX = -999;
+  for (let i = 0; i < sliced.length; i++) {
+    const d = sliced[i], cx = xAt(i);
+    if (d.hour === 0 && !shownDays.has(d.day_label) && cx - lastTickX >= 64) {
+      shownDays.add(d.day_label);
+      lastTickX = cx;
+      const anchor = cx - padL < 22 ? "start" : "middle";
+      html += `<text x="${cx.toFixed(1)}" y="334" text-anchor="${anchor}" fill="#6E7681" font-size="10.5">${d.day_label}</text>`;
+    }
+  }
+  if (shownDays.size === 0 && sliced.length > 0) {
+    html += `<text x="${padL}" y="334" text-anchor="start" fill="#6E7681" font-size="10.5">${sliced[0].day_label}</text>`;
+  }
+
+  html += `<line id="hover-line" x1="0" y1="${topY}" x2="0" y2="${rainFcBase}" stroke="#8B949E" stroke-width="1" stroke-dasharray="2 2" visibility="hidden"/>`;
+  html += `<circle id="hover-dot-obs" cx="0" cy="0" r="4" fill="#58A6FF" stroke="#0D1117" stroke-width="1.5" visibility="hidden"/>`;
+  html += `<circle id="hover-dot-fc" cx="0" cy="0" r="4" fill="#F2994A" stroke="#0D1117" stroke-width="1.5" visibility="hidden"/>`;
+  html += `<rect id="chart-hitbox" x="${padL}" y="${topY}" width="${plotW}" height="${rainFcBase - topY}" fill="transparent" style="cursor: crosshair;"/>`;
+
+  svg.innerHTML = html;
+
+  const hitbox = document.getElementById("chart-hitbox");
+  const hoverLine = document.getElementById("hover-line");
+  const dotObs = document.getElementById("hover-dot-obs");
+  const dotFc = document.getElementById("hover-dot-fc");
+
+  hitbox.addEventListener("mousemove", (ev) => {
+    const rect = svg.getBoundingClientRect();
+    const svgX = (ev.clientX - rect.left) * (W / rect.width);
+    const idx = Math.max(0, Math.min(sliced.length - 1, Math.round(((svgX - padL) / plotW) * Math.max(1, sliced.length - 1))));
+    const d = sliced[idx], cx = xAt(idx), ov = d[cfg.obsKey], fv = d[cfg.fcKey];
+
+    hoverLine.setAttribute("x1", cx);
+    hoverLine.setAttribute("x2", cx);
+    hoverLine.setAttribute("visibility", "visible");
+
+    if (d.is_obs && ov != null) {
+      dotObs.setAttribute("cx", cx); dotObs.setAttribute("cy", yAt(ov)); dotObs.setAttribute("visibility", "visible");
+    } else {
+      dotObs.setAttribute("visibility", "hidden");
+    }
+    if (fv != null) {
+      dotFc.setAttribute("cx", cx); dotFc.setAttribute("cy", yAt(fv)); dotFc.setAttribute("visibility", "visible");
+    } else {
+      dotFc.setAttribute("visibility", "hidden");
+    }
+
+    const errStr = (d.is_obs && ov != null && fv != null) ? fmtSigned(ov - fv, cfg.decimals, cfg.shortUnit) : "—";
+    tooltip.innerHTML = `
+      <div style="font-weight:600; color:#F0F6FC; margin-bottom:4px;">${d.label}</div>
+      ${d.is_obs && ov != null ? `<div><span style="color:#58A6FF;">●</span> Observed: <strong>${ov.toFixed(cfg.decimals)}${cfg.shortUnit}</strong></div>` : ""}
+      ${fv != null ? `<div><span style="color:#F2994A;">●</span> Forecast: <strong>${fv.toFixed(cfg.decimals)}${cfg.shortUnit}</strong></div>` : ""}
+      ${d.is_obs ? `<div style="color:#8B949E;">Error: ${errStr}</div>` : `<div style="color:#8B949E;">Future forecast</div>`}
+      <div style="color:#8B949E; margin-top:2px;">Rain: ${d.is_obs && d.obs_rain != null ? d.obs_rain.toFixed(1) + " mm (obs) / " : ""}${d.fc_rain != null ? d.fc_rain.toFixed(1) + " mm (fcst)" : ""}</div>
+    `;
+    tooltip.style.display = "block";
+    const tipW = tooltip.offsetWidth || 175;
+    const relX = ev.clientX - rect.left;
+    tooltip.style.left = `${Math.max(4, relX + tipW + 20 > rect.width ? relX - tipW - 14 : relX + 14)}px`;
+    tooltip.style.top = "24px";
+  });
+
+  hitbox.addEventListener("mouseleave", () => {
+    hoverLine.setAttribute("visibility", "hidden");
+    dotObs.setAttribute("visibility", "hidden");
+    dotFc.setAttribute("visibility", "hidden");
+    tooltip.style.display = "none";
+  });
+}
+
+function renderDynamic() {
+  const { sliced, obsCount } = getSlicedTimeline();
+  renderDataCollectionCard(obsCount);
+  renderAccuracyAndHorizons();
+  renderMainChart(sliced);
+}
+
+document.querySelectorAll("#param-switcher .seg-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#param-switcher .seg-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeParam = btn.dataset.param;
+    renderDynamic();
+  });
+});
+
+renderStaticCards();
+renderDynamic();
+
+setTimeout(() => {
+  try { window.parent.location.reload(); } catch (e) { window.location.reload(); }
+}, 900000);
+</script>
+</body>
+</html>
